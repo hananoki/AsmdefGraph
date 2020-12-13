@@ -3,18 +3,18 @@ using UnityEditor;
 using UnityEngine;
 using UnityReflection;
 
-namespace Hananoki.AsmdefGraph {
+namespace HananokiEditor.AsmdefGraph {
 	internal class AsmdefGraphSingleton : ScriptableSingleton<AsmdefGraphSingleton> {
 
-		public Texture2D _asmDefIcon;
-		public static Texture2D asmDefIcon {
-			get {
-				if( instance._asmDefIcon == null ) {
-					instance._asmDefIcon = UnityEditorEditorGUIUtility.LoadIcon( "icons/processed/unityeditorinternal/assemblydefinitionasset icon.asset" );
-				}
-				return instance._asmDefIcon;
-			}
-		}
+		//public Texture2D _asmDefIcon;
+		//public static Texture2D asmDefIcon {
+		//	get {
+		//		if( instance._asmDefIcon == null ) {
+		//			instance._asmDefIcon = UnityEditorEditorGUIUtility.LoadIcon( "icons/processed/unityeditorinternal/assemblydefinitionasset icon.asset" );
+		//		}
+		//		return instance._asmDefIcon;
+		//	}
+		//}
 
 		// Key: アセンブリ名
 		// Value: ノード

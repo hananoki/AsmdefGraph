@@ -1,21 +1,23 @@
 {
-    "name": "Hananoki.AsmdefGraph.Editor",
-    "references": [
-        "Hananoki.SharedModule.Runtime",
-        "Hananoki.SharedModule.RuntimeEditor",
-        "Hananoki.UnityReflection.Editor"
-    ],
-    "includePlatforms": [
-        "Editor"
-    ],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": false,
-    "defineConstraints": [
-        "UNITY_2019_1_OR_NEWER"
-    ],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "Hananoki.AsmdefGraph.Editor",
+  "references": [
+    "Hananoki.EditorIcon.Editor",
+    "Hananoki.SharedModule.Runtime",
+    "Hananoki.SharedModule.RuntimeEditor",
+    "Hananoki.UnityReflection.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_2019_1_OR_NEWER"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "references.backup": []
 }

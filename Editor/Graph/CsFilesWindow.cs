@@ -1,7 +1,9 @@
 ﻿
-using singleton = Hananoki.AsmdefGraph.AsmdefGraphSingleton;
+using HananokiRuntime;
 
-namespace Hananoki.AsmdefGraph {
+using singleton = HananokiEditor.AsmdefGraph.AsmdefGraphSingleton;
+
+namespace HananokiEditor.AsmdefGraph {
 
 	public sealed class CsFilesWindow : HEditorWindow {
 

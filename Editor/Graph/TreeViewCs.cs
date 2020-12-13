@@ -1,11 +1,11 @@
-﻿using Hananoki.Extensions;
+﻿using HananokiEditor.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEditor.IMGUI.Controls;
 
-namespace Hananoki.AsmdefGraph {
+namespace HananokiEditor.AsmdefGraph {
 
 	using Item = CsFileItem;
 

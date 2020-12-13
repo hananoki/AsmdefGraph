@@ -1,5 +1,5 @@
 ﻿
-using Hananoki.Extensions;
+using HananokiEditor.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.Compilation;
@@ -7,9 +7,9 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-using singleton = Hananoki.AsmdefGraph.AsmdefGraphSingleton;
+using singleton = HananokiEditor.AsmdefGraph.AsmdefGraphSingleton;
 
-namespace Hananoki.AsmdefGraph {
+namespace HananokiEditor.AsmdefGraph {
 	public sealed class AsmdefGraphView : GraphView {
 
 		//public new class UxmlFactory : UxmlFactory<AsmdefGraphView, UxmlTraits> { }

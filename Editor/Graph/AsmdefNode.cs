@@ -3,13 +3,13 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine.UIElements;
 using UnityEngine;
 using UnityEditor.Compilation;
-using Hananoki.Extensions;
+using HananokiEditor.Extensions;
 using UnityEditor;
 using System.Linq;
 
-using singleton = Hananoki.AsmdefGraph.AsmdefGraphSingleton;
+using singleton = HananokiEditor.AsmdefGraph.AsmdefGraphSingleton;
 
-namespace Hananoki.AsmdefGraph {
+namespace HananokiEditor.AsmdefGraph {
 	public class AsmdefNode : Node/*, IAsmdefNodeView */{
 		public Port leftPort;
 		public Port rightPort;

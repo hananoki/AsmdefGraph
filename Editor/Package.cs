@@ -1,5 +1,5 @@
 ﻿
-namespace Hananoki.AsmdefGraph {
+namespace HananokiEditor.AsmdefGraph {
   public static class Package {
     public const string name = "AsmdefGraph";
     public const string editorPrefName = "Hananoki.AsmdefGraph";

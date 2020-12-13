@@ -1,17 +1,17 @@
 
-using Hananoki.Extensions;
+using HananokiEditor.Extensions;
 using UnityEditor;
 using UnityEngine;
 using UnityReflection;
 
-using singleton = Hananoki.AsmdefGraph.AsmdefGraphSingleton;
-using SS = Hananoki.SharedModule.S;
+using singleton = HananokiEditor.AsmdefGraph.AsmdefGraphSingleton;
+using SS = HananokiEditor.SharedModule.S;
 
-namespace Hananoki.AsmdefGraph {
+namespace HananokiEditor.AsmdefGraph {
 
 	public partial class AsmdefGraphWindow : HEditorWindow {
 
-		[MenuItem( "Window/Hananoki/" + "Asmdef Graph" )]
+		[MenuItem( "Window/Hananoki/" + "Asmdef Graph", false, 11 )]
 		public static void Open() {
 			GetWindow<AsmdefGraphWindow>();
 		}
@@ -32,9 +32,9 @@ namespace Hananoki.AsmdefGraph {
 
 			var exist = kPath.IsExistsFile();
 			r.x -= 16;
-			HGUIScope.Change();
+			ScopeChange.Begin();
 			GUI.Toggle( r, exist, EditorHelper.TempContent( "", "Change WindowLayout" ) );
-			if( HGUIScope.End() ) {
+			if( ScopeChange.End() ) {
 				if( exist ) {
 					UnityEditorWindowLayout.LoadWindowLayout( kPath, false );
 					fs.rm( kPath ); ;

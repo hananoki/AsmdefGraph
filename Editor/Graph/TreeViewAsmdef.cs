@@ -1,13 +1,15 @@
-﻿using Hananoki.Extensions;
+﻿
+using HananokiEditor.Extensions;
+using HananokiRuntime.Extensions;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Compilation;
 using UnityEditor;
+using UnityEditor.Compilation;
 using UnityEditor.IMGUI.Controls;
 
-using singleton = Hananoki.AsmdefGraph.AsmdefGraphSingleton;
+using singleton = HananokiEditor.AsmdefGraph.AsmdefGraphSingleton;
 
-namespace Hananoki.AsmdefGraph {
+namespace HananokiEditor.AsmdefGraph {
 
 	using Item = DependItem;
 
@@ -55,7 +57,7 @@ namespace Hananoki.AsmdefGraph {
 					id = GetID(),
 					node = p,
 					assetPath = p.GetAssetPath(),
-					icon = singleton.asmDefIcon,
+					icon = EditorIcon.assemblyDefinition,
 				};
 				m_itemAll.Add( mainItem );
 			}
@@ -72,7 +74,7 @@ namespace Hananoki.AsmdefGraph {
 					id = GetID(),
 					node = p,
 					assetPath = p.GetAssetPath(),
-					icon = singleton.asmDefIcon,
+					icon = EditorIcon.assemblyDefinition,
 				};
 				m_itemRefBy.Add( mainItem );
 			}
@@ -85,7 +87,7 @@ namespace Hananoki.AsmdefGraph {
 					id = GetID(),
 					node = p,
 					assetPath = p.GetAssetPath(),
-					icon = singleton.asmDefIcon,
+					icon = EditorIcon.assemblyDefinition,
 				};
 				m_itemRefTo.Add( mainItem );
 			}

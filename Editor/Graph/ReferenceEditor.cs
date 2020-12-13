@@ -1,5 +1,5 @@
 ﻿
-using Hananoki.Extensions;
+using HananokiEditor.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using UnityEditorInternal;
 using UnityEngine;
 //using UnityReflection;
 
-namespace Hananoki.AsmdefGraph {
+namespace HananokiEditor.AsmdefGraph {
 
 	public partial class ReferenceEditor : HEditorWindow {
 
@@ -70,20 +70,20 @@ namespace Hananoki.AsmdefGraph {
 		public override void OnDefaultGUI() {
 			//////////////////////
 			EditorGUILayout.LabelField( "Assembly Definition References", EditorStyles.boldLabel );
-			HGUIScope.Vertical( EditorStyles.helpBox );
+			ScopeVertical.Begin( EditorStyles.helpBox );
 			foreach( var e in m_reference ) {
 				e.toggle = HEditorGUILayout.ToggleLeft( e.asmname, e.toggle );
 			}
-			HGUIScope.End();
+			ScopeVertical.End();
 
 
 			//////////////////////
 			GUILayout.FlexibleSpace();
-			HGUIScope.Horizontal();
+			ScopeHorizontal.Begin();
 			GUILayout.FlexibleSpace();
 			if( GUILayout.Button( "Apply" ) ) Apply();
 			GUILayout.Space( 8 );
-			HGUIScope.End();
+			ScopeHorizontal.End();
 			GUILayout.Space( 8 );
 		}
 

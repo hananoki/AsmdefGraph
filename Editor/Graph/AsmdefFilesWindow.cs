@@ -1,7 +1,10 @@
 ﻿
-using singleton = Hananoki.AsmdefGraph.AsmdefGraphSingleton;
+using HananokiRuntime;
 
-namespace Hananoki.AsmdefGraph {
+
+using singleton = HananokiEditor.AsmdefGraph.AsmdefGraphSingleton;
+
+namespace HananokiEditor.AsmdefGraph {
 
 	public sealed class AsmdefFilesWindow : HEditorWindow {
 
@@ -10,7 +13,7 @@ namespace Hananoki.AsmdefGraph {
 		void OnEnable() {
 			singleton.asmdefFilesWindow = this;
 			m_disableShadeMode = true;
-			SetTitle( "Asmdef Files", singleton.asmDefIcon );
+			SetTitle( "Asmdef Files", EditorIcon.assemblyDefinition);
 
 			Helper.New( ref singleton.instance.m_TreeViewAsmdef );
 		}
