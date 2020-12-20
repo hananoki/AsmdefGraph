@@ -59,10 +59,10 @@ namespace HananokiEditor.AsmdefGraph {
 			//graphView.transform
 			rootVisualElement.Add( graphView );
 
-			if( Find( typeof( CsFilesWindow ) ) == null ) {
+			if( EditorWindowUtils.Find( typeof( CsFilesWindow ) ) == null ) {
 				GetWindow<CsFilesWindow>();
 			}
-			if( Find( typeof( AsmdefFilesWindow ) ) == null ) {
+			if( EditorWindowUtils.Find( typeof( AsmdefFilesWindow ) ) == null ) {
 				GetWindow<AsmdefFilesWindow>();
 			}
 		}

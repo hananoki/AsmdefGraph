@@ -9,7 +9,7 @@ using UnityReflection;
 
 
 namespace HananokiEditor {
-	public class AsmdefEditorWindow : HEditorWindow {
+	public class AsmdefEditorWindow : HNEditorWindow<AsmdefEditorWindow> {
 
 		UnityEditorSplitterState m_HorizontalSplitter;
 		AsmdefEditorTreeView m_treeView;
@@ -19,7 +19,10 @@ namespace HananokiEditor {
 		[MenuItem( "Window/Hananoki/" + "Asmdef Editor", false, 10 )]
 		public static void Open() {
 			GetWindow<AsmdefEditorWindow>();
-
+		}
+		public static void OpenAsName( string asmdefName ) {
+			Open();
+			SessionState.SetString( "kAsmdefEditorTreeView", asmdefName );
 		}
 
 		public void Refresh() {
@@ -28,6 +31,8 @@ namespace HananokiEditor {
 			}
 			m_treeView?.RegisterFiles();
 		}
+
+		
 
 		void OnEnable() {
 			SetTitle( "Asmdef Editor", EditorIcon.assemblyDefinition );

@@ -120,11 +120,17 @@ namespace HananokiEditor {
 
 		public void ReloadAndSorting() {
 			Reload();
+
+			var s = SessionState.GetString( "kAsmdefEditorTreeView", "" );
+			var it = m_registerItems.Find( x => x.displayName == s );
+			if( it != null ) SelectItem( it.id );
 		}
 
 
 		protected override void SelectionChanged( IList<int> selectedIds ) {
 			Selection.activeObject = currentItem?.target;
+
+			SessionState.SetString( "kAsmdefEditorTreeView", currentItem.displayName );
 		}
 
 
@@ -145,7 +151,7 @@ namespace HananokiEditor {
 				ScopeHorizontal.End();
 
 				////////////////////////
-				
+
 				Ref del = null;
 				foreach( var e in currentItem.m_reference ) {
 					ScopeHorizontal.Begin( EditorStyles.helpBox );
@@ -159,7 +165,7 @@ namespace HananokiEditor {
 						del = e;
 						currentItem.isDIRTY = true;
 					}
-					
+
 					ScopeHorizontal.End();
 				}
 				if( del != null ) {
