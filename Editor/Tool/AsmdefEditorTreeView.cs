@@ -1,6 +1,7 @@
 ﻿
 using HananokiEditor.Extensions;
 using HananokiRuntime.Extensions;
+using HananokiRuntime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,11 +41,18 @@ namespace HananokiEditor {
 
 	public class AsmdefEditorTreeView : HTreeView<Item> {
 
+		SessionStateString m_lastSelect = new SessionStateString( "m_lastSelect" );
+
 		public AsmdefEditorTreeView() : base( new TreeViewState() ) {
 			showAlternatingRowBackgrounds = true;
 			//baseIndent = -8;
+
 		}
 
+		public void SelectLastItem() {
+			var it = m_registerItems.Find( x => x.displayName == m_lastSelect );
+			if( it != null ) SelectItem( it.id );
+		}
 
 		public void RegisterFiles() {
 			InitID();
@@ -54,13 +62,14 @@ namespace HananokiEditor {
 
 			foreach( var x in guids/*.Select( x => x.ToAssetPath() )*/ ) {
 
-				var p = x.ToAssetPath();
-				var packageName = p.FileNameWithoutExtension();
+				var path = x.ToAssetPath();
+				if( path.StartWithPackage() ) continue;
+				var packageName = path.FileNameWithoutExtension();
 				if( packageName.StartsWith( "Unity" ) ) continue;
 
 				//var imp = AssetImporter.GetAtPath( p );
 
-				var _json = new AsmdefAssetJson( p );
+				var _json = new AsmdefAssetJson( path );
 
 				var _reference = new List<Ref>( 128 );
 				//var dic = new IList();
@@ -101,7 +110,7 @@ namespace HananokiEditor {
 					displayName = packageName,
 					id = GetID(),
 					icon = UnityEditorEditorGUIUtility.LoadIcon( "icons/processed/unityeditorinternal/assemblydefinitionasset icon.asset" ),
-					target = (AssemblyDefinitionAsset) p.LoadAsset(),
+					target = (AssemblyDefinitionAsset) path.LoadAsset(),
 					//editor = (AssetImporterEditor) Editor.CreateEditor( imp ),
 					m_json = _json,
 					m_reference = _reference,
@@ -121,16 +130,12 @@ namespace HananokiEditor {
 		public void ReloadAndSorting() {
 			Reload();
 
-			var s = SessionState.GetString( "kAsmdefEditorTreeView", "" );
-			var it = m_registerItems.Find( x => x.displayName == s );
-			if( it != null ) SelectItem( it.id );
+			SelectLastItem();
 		}
 
 
 		protected override void SelectionChanged( IList<int> selectedIds ) {
-			Selection.activeObject = currentItem?.target;
-
-			SessionState.SetString( "kAsmdefEditorTreeView", currentItem.displayName );
+			m_lastSelect.Value = currentItem.displayName;
 		}
 
 
@@ -142,12 +147,31 @@ namespace HananokiEditor {
 				////////////////////////
 
 				ScopeHorizontal.Begin();
-				EditorGUILayout.LabelField( "Assembly Definition References", EditorStyles.boldLabel );
+				EditorGUILayout.LabelField( "General", EditorStyles.boldLabel );
 				GUILayout.FlexibleSpace();
 				if( GUILayout.Button( "Sort" ) ) Sort( currentItem );
 				ScopeDisable.Begin( !currentItem.isDIRTY );
 				if( GUILayout.Button( "Apply" ) ) ApplyAndSave( currentItem );
 				ScopeDisable.End();
+				ScopeHorizontal.End();
+
+				ScopeVertical.Begin( GUI.skin.box );
+				ScopeChange.Begin();
+				currentItem.m_json.autoReferenced=EditorGUILayout.Toggle( "Auto Referenced", currentItem.m_json.autoReferenced );
+				if( ScopeChange.End() ) {
+					currentItem.isDIRTY = true;
+				}
+				ScopeVertical.End();
+
+				////////////////////////
+
+				ScopeHorizontal.Begin();
+				EditorGUILayout.LabelField( "Assembly Definition References", EditorStyles.boldLabel );
+				GUILayout.FlexibleSpace();
+				//if( GUILayout.Button( "Sort" ) ) Sort( currentItem );
+				//ScopeDisable.Begin( !currentItem.isDIRTY );
+				//if( GUILayout.Button( "Apply" ) ) ApplyAndSave( currentItem );
+				//ScopeDisable.End();
 				ScopeHorizontal.End();
 
 				////////////////////////
@@ -281,6 +305,14 @@ namespace HananokiEditor {
 			DefaultRowGUI( args );
 
 			var item = (Item) args.item;
+
+			var rc2 = args.rowRect.W( 16 );
+			rc2.x += ( 16 * ( item.depth + 1 ) );
+			rc2 = rc2.AlignCenter( 14, 14 );
+			//EditorGUI.DrawRect( rc2,new Color(0,0,1,0.2f) );
+			if( EditorHelper.HasMouseClick( rc2 ) ) {
+				EditorApplication.delayCall += () => { EditorHelper.PingAndSelectObject( item.target ); };
+			}
 
 			if( item.isDIRTY ) {
 				GUI.DrawTexture( args.rowRect.W( 16 ), EditorIcon.warning );

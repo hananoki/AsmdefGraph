@@ -39,6 +39,10 @@ namespace HananokiEditor {
 			}
 		}
 
+		public bool autoReferenced {
+			get => (bool) m_data[ "autoReferenced" ];
+			set => m_data[ "autoReferenced" ] = value;
+		}
 		public IList references {
 			get => this[ "references" ];
 			set => this[ "references" ] = value;

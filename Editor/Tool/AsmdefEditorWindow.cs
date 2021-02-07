@@ -12,8 +12,9 @@ namespace HananokiEditor {
 	public class AsmdefEditorWindow : HNEditorWindow<AsmdefEditorWindow> {
 
 		UnityEditorSplitterState m_HorizontalSplitter;
-		AsmdefEditorTreeView m_treeView;
+		internal AsmdefEditorTreeView m_treeView;
 		public Vector2 m_scroll;
+
 
 		//[MenuItem( "EditorUtility/AssetLib" )]
 		[MenuItem( "Window/Hananoki/" + "Asmdef Editor", false, 10 )]
@@ -21,8 +22,16 @@ namespace HananokiEditor {
 			GetWindow<AsmdefEditorWindow>();
 		}
 		public static void OpenAsName( string asmdefName ) {
+			//Debug.Log( asmdefName );
+			var lasctSelect = new SessionStateString( "m_lastSelect" );
+			lasctSelect.Value = asmdefName;
+			var window = EditorWindowUtils.Find<AsmdefEditorWindow>();
+			if( window ) {
+				window.m_treeView.SelectLastItem();
+				window.Repaint();
+				return;
+			}
 			Open();
-			SessionState.SetString( "kAsmdefEditorTreeView", asmdefName );
 		}
 
 		public void Refresh() {
@@ -32,7 +41,7 @@ namespace HananokiEditor {
 			m_treeView?.RegisterFiles();
 		}
 
-		
+
 
 		void OnEnable() {
 			SetTitle( "Asmdef Editor", EditorIcon.assemblyDefinition );
@@ -60,6 +69,7 @@ namespace HananokiEditor {
 			HGUIToolbar.Begin();
 			if( HGUIToolbar.Button( EditorIcon.refresh ) ) {
 				Refresh();
+				EditorHelper.ShowMessagePop( "Refresh OK." );
 			}
 
 			bool isDirty = m_treeView.m_registerItems.Where( x => x.isDIRTY ).Count() != 0;
