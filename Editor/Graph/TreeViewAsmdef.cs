@@ -57,7 +57,7 @@ namespace HananokiEditor.AsmdefGraph {
 					id = GetID(),
 					node = p,
 					assetPath = p.GetAssetPath(),
-					icon = EditorIcon.assemblyDefinition,
+					icon = EditorIcon.assetIcon_AssemblyDefinition,
 				};
 				m_itemAll.Add( mainItem );
 			}
@@ -74,7 +74,7 @@ namespace HananokiEditor.AsmdefGraph {
 					id = GetID(),
 					node = p,
 					assetPath = p.GetAssetPath(),
-					icon = EditorIcon.assemblyDefinition,
+					icon = EditorIcon.assetIcon_AssemblyDefinition,
 				};
 				m_itemRefBy.Add( mainItem );
 			}
@@ -87,7 +87,7 @@ namespace HananokiEditor.AsmdefGraph {
 					id = GetID(),
 					node = p,
 					assetPath = p.GetAssetPath(),
-					icon = EditorIcon.assemblyDefinition,
+					icon = EditorIcon.assetIcon_AssemblyDefinition,
 				};
 				m_itemRefTo.Add( mainItem );
 			}

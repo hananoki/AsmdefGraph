@@ -109,7 +109,7 @@ namespace HananokiEditor {
 				var item = new Item {
 					displayName = packageName,
 					id = GetID(),
-					icon = UnityEditorEditorGUIUtility.LoadIcon( "icons/processed/unityeditorinternal/assemblydefinitionasset icon.asset" ),
+					icon = EditorIcon.icons_processed_unityeditorinternal_assemblydefinitionasset_icon_asset,
 					target = (AssemblyDefinitionAsset) path.LoadAsset(),
 					//editor = (AssetImporterEditor) Editor.CreateEditor( imp ),
 					m_json = _json,
@@ -149,10 +149,10 @@ namespace HananokiEditor {
 				ScopeHorizontal.Begin();
 				EditorGUILayout.LabelField( "General", EditorStyles.boldLabel );
 				GUILayout.FlexibleSpace();
-				if( GUILayout.Button( "Sort" ) ) Sort( currentItem );
-				ScopeDisable.Begin( !currentItem.isDIRTY );
-				if( GUILayout.Button( "Apply" ) ) ApplyAndSave( currentItem );
-				ScopeDisable.End();
+				//if( GUILayout.Button( "Sort" ) ) Sort( currentItem );
+				//ScopeDisable.Begin( !currentItem.isDIRTY );
+				//if( GUILayout.Button( "Apply" ) ) ApplyAndSave( currentItem );
+				//ScopeDisable.End();
 				ScopeHorizontal.End();
 
 				ScopeVertical.Begin( GUI.skin.box );
@@ -195,6 +195,27 @@ namespace HananokiEditor {
 				if( del != null ) {
 					currentItem.m_reference.Remove( del );
 				}
+
+				//ScopeHorizontal.Begin();
+				//GUILayout.FlexibleSpace();
+				//if( GUILayout.Button( "整形") ) {
+				//	Debug.Log( currentItem.m_json.name );
+				//	ShellUtils.Start( "dotnet-format", $"-v diag {currentItem.m_json.name}.csproj" );
+				//	//ShellUtils.Start( "cmd.exe", "/k dir" );
+				//	//System.Diagnostics.Process p = new System.Diagnostics.Process();
+				//	//p.StartInfo.FileName = "cmd.exe";
+				//	//p.StartInfo.Arguments = "/k dotnet-format -v diag com.unity.cinemachine.Editor.csproj";
+				//	//p.SynchronizingObject = this;
+				//	//p.StartInfo.UseShellExecute = true;
+				//	//p.Exited += ( sender, e ) => {
+				//	//	EditorApplication.delayCall += () => {
+				//	//		exitHandler( sender, e );
+				//	//	};
+				//	//};
+				//	//p.Start();
+				//	//p.WaitForExit();
+				//}
+				//ScopeHorizontal.End();
 
 				GUILayout.FlexibleSpace();
 			}

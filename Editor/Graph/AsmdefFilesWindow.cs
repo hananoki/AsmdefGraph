@@ -13,7 +13,7 @@ namespace HananokiEditor.AsmdefGraph {
 		void OnEnable() {
 			singleton.asmdefFilesWindow = this;
 			m_disableShadeMode = true;
-			SetTitle( "Asmdef Files", EditorIcon.assemblyDefinition);
+			SetTitle( "Asmdef Files", EditorIcon.assetIcon_AssemblyDefinition);
 
 			Helper.New( ref singleton.instance.m_TreeViewAsmdef );
 		}

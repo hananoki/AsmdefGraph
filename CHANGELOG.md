@@ -1,5 +1,13 @@
 # AsmdefGraph
 
+## [0.2.3] - 2021-06-09
+- SharedModule v1.9.0 or later
+
+### Added
+- Added ソースコード整形
+### Fixed
+- Fixed error when autoReferenced key does not exist
+
 ## [0.2.2] - 2021-02-07
 - SharedModule v1.7.5 or later
 

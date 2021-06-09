@@ -40,7 +40,13 @@ namespace HananokiEditor {
 		}
 
 		public bool autoReferenced {
-			get => (bool) m_data[ "autoReferenced" ];
+			get {
+				object result = false;
+				m_data.TryGetValue( "autoReferenced", out result );
+				if( result != null ) return (bool) result;
+				// keyが存在しない時のUnityエディタの挙動は、trueっぽいのでそれを返す
+				return true;
+			}
 			set => m_data[ "autoReferenced" ] = value;
 		}
 		public IList references {

@@ -44,7 +44,7 @@ namespace HananokiEditor {
 
 
 		void OnEnable() {
-			SetTitle( "Asmdef Editor", EditorIcon.assemblyDefinition );
+			SetTitle( "Asmdef Editor", EditorIcon.assetIcon_AssemblyDefinition );
 
 			m_HorizontalSplitter = new UnityEditorSplitterState( 0.4f, 0.6f );
 
@@ -53,19 +53,6 @@ namespace HananokiEditor {
 
 
 		void DrawLeftPane() {
-			m_treeView.DrawLayoutGUI();
-		}
-
-
-		void DrawRightPane() {
-			using( var sc = new GUILayout.ScrollViewScope( m_scroll ) ) {
-				m_scroll = sc.scrollPosition;
-				m_treeView.DrawItem();
-			}
-		}
-
-
-		void DrawToolBar() {
 			HGUIToolbar.Begin();
 			if( HGUIToolbar.Button( EditorIcon.refresh ) ) {
 				Refresh();
@@ -89,6 +76,34 @@ namespace HananokiEditor {
 
 			GUILayout.FlexibleSpace();
 			HGUIToolbar.End();
+
+			m_treeView.DrawLayoutGUI();
+		}
+
+
+		void DrawRightPane() {
+			HGUIToolbar.Begin();
+			if( HGUIToolbar.Button( "ソースコード整形" ) ) {
+				ShellUtils.Start( "dotnet-format", $"-v diag {m_treeView.currentItem.m_json.name}.csproj" );
+			}
+			//GUILayout.Space(1);
+
+			GUILayout.FlexibleSpace();
+			if( HGUIToolbar.Button( "Sort" ) ) m_treeView.Sort( m_treeView.currentItem );
+			ScopeDisable.Begin( m_treeView.currentItem == null ? true : !m_treeView.currentItem.isDIRTY );
+			if( HGUIToolbar.Button( "Apply" ) ) m_treeView.ApplyAndSave( m_treeView.currentItem );
+			ScopeDisable.End();
+			HGUIToolbar.End();
+
+			using( var sc = new GUILayout.ScrollViewScope( m_scroll ) ) {
+				m_scroll = sc.scrollPosition;
+				m_treeView.DrawItem();
+			}
+		}
+
+
+		void DrawToolBar() {
+
 		}
 
 
