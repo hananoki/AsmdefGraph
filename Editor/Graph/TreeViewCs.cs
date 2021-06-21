@@ -49,11 +49,10 @@ namespace HananokiEditor.AsmdefGraph {
 
 
 
-		protected override void SingleClickedItem( int id ) {
-			var item = FindItem( id );
-
+		protected override void OnSingleClickedItem( Item item ) {
 			Selection.activeObject = item.assetPath.LoadAsset();
 		}
+
 
 		public void DrawItem() {
 			if( rootItem != null  ) {

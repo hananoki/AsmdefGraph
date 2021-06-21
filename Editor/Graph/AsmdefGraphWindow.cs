@@ -11,7 +11,7 @@ namespace HananokiEditor.AsmdefGraph {
 
 	public partial class AsmdefGraphWindow : HEditorWindow {
 
-		[MenuItem( "Window/Hananoki/" + "Asmdef Graph", false, 11 )]
+		[MenuItem( "Window/Hananoki/" + "Asmdef Graph", false, 'A' * 10 )]
 		public static void Open() {
 			GetWindow<AsmdefGraphWindow>();
 		}

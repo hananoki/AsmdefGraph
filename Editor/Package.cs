@@ -5,7 +5,7 @@ namespace HananokiEditor.AsmdefGraph {
     public const string name = "AsmdefGraph";
     public const string nameNicify = "Asmdef Graph";
     public const string editorPrefName = "Hananoki.AsmdefGraph";
-    public const string version = "0.2.3";
+    public const string version = "0.2.4";
 		[HananokiEditorMDViewerRegister]
 		public static string MDViewerRegister() {
 			return "2510bf44735f1aa419689bbb7ebf6400";

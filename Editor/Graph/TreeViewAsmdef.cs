@@ -108,8 +108,7 @@ namespace HananokiEditor.AsmdefGraph {
 
 
 
-		protected override void SingleClickedItem( int id ) {
-			var item = FindItem( id );
+		protected override void OnSingleClickedItem( Item item ) {
 
 			singleton.treeViewCs.RegisterFiles( item.node.assembly );
 

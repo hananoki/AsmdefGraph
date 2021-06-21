@@ -134,7 +134,7 @@ namespace HananokiEditor {
 		}
 
 
-		protected override void SelectionChanged( IList<int> selectedIds ) {
+		protected override void OnSelectionChanged( Item[] items ) {
 			m_lastSelect.Value = currentItem.displayName;
 		}
 

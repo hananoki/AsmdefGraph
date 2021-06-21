@@ -17,7 +17,7 @@ namespace HananokiEditor {
 
 
 		//[MenuItem( "EditorUtility/AssetLib" )]
-		[MenuItem( "Window/Hananoki/" + "Asmdef Editor", false, 10 )]
+		[MenuItem( "Window/Hananoki/" + "Asmdef Editor", false, 'A' * 10 )]
 		public static void Open() {
 			GetWindow<AsmdefEditorWindow>();
 		}
