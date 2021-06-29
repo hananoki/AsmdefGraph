@@ -120,10 +120,8 @@ namespace HananokiEditor.AsmdefGraph {
 		}
 
 
-		protected override void OnRowGUI( RowGUIArgs args ) {
+		protected override void OnRowGUI( Item item, RowGUIArgs args ) {
 			DefaultRowGUI( args );
-
-			var item = (Item) args.item;
 
 			if( !IsSelected( item.id ) ) return;
 

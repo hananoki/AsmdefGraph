@@ -322,10 +322,8 @@ namespace HananokiEditor {
 
 
 
-		protected override void OnRowGUI( RowGUIArgs args ) {
+		protected override void OnRowGUI( Item item, RowGUIArgs args ) {
 			DefaultRowGUI( args );
-
-			var item = (Item) args.item;
 
 			var rc2 = args.rowRect.W( 16 );
 			rc2.x += ( 16 * ( item.depth + 1 ) );
@@ -474,14 +472,12 @@ namespace HananokiEditor {
 
 		public const string k_GenericDragID = "AAA.GenericData";
 
-		protected override void SetupDragAndDrop( SetupDragAndDropArgs args ) {
-			if( args.draggedItemIDs == null ) return;
-
+		protected override void OnSetupDragAndDrop( Item[] items ) {
+			
 			DragAndDrop.PrepareStartDrag();
 
 			var selected = new List<Item>();
-			foreach( var id in args.draggedItemIDs ) {
-				var item = FindItem( id, rootItem ) as Item;
+			foreach( var item in items ) {
 				selected.Add( item );
 			}
 			//var ss = selected.Select( x => x.guid.ToAssetPath() ).ToArray(); ;
@@ -494,7 +490,7 @@ namespace HananokiEditor {
 			DragAndDrop.StartDrag( "ScriptableObjectTreeView" );
 		}
 
-		protected override bool CanStartDrag( CanStartDragArgs args ) {
+		protected override bool OnCanStartDrag( Item item, CanStartDragArgs args ) {
 			return true;
 		}
 

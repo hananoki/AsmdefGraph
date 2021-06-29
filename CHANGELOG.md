@@ -1,10 +1,19 @@
 # AsmdefGraph
 
+## [0.3.0] - 2021-06-30
+- `SharedModule v1.11.0` or later
+
+### Added
+- Added `OnOpen` handling
+
+### Changed
+- Changed the argument of `AsmdefEditorWindow.OpenAsName`
+
 ## [0.2.4] - 2021-06-21
-- SharedModule v1.10.0 or later
+- `SharedModule v1.10.0` or later
 
 ## [0.2.3] - 2021-06-09
-- SharedModule v1.9.0 or later
+- `SharedModule v1.9.0` or later
 
 ### Added
 - Added ソースコード整形

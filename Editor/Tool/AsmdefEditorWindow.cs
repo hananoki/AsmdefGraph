@@ -1,11 +1,10 @@
-﻿
-
-using HananokiEditor.Extensions;
+﻿using HananokiEditor.Extensions;
 using HananokiRuntime;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityReflection;
+using UnityObject = UnityEngine.Object;
 
 
 namespace HananokiEditor {
@@ -16,15 +15,25 @@ namespace HananokiEditor {
 		public Vector2 m_scroll;
 
 
-		//[MenuItem( "EditorUtility/AssetLib" )]
+		/////////////////////////////////////////
 		[MenuItem( "Window/Hananoki/" + "Asmdef Editor", false, 'A' * 10 )]
 		public static void Open() {
 			GetWindow<AsmdefEditorWindow>();
 		}
-		public static void OpenAsName( string asmdefName ) {
+
+
+
+		/////////////////////////////////////////
+		public static void OpenAsName( UnityObject unityObject ) {
+			OpenAsName( unityObject.ToAssetPath() );
+		}
+
+
+		/////////////////////////////////////////
+		public static void OpenAsName( string guid_or_assetPath ) {
 			//Debug.Log( asmdefName );
 			var lasctSelect = new SessionStateString( "m_lastSelect" );
-			lasctSelect.Value = asmdefName;
+			lasctSelect.Value = guid_or_assetPath.ToAssetPath().FileNameWithoutExtension();
 			var window = EditorWindowUtils.Find<AsmdefEditorWindow>();
 			if( window ) {
 				window.m_treeView.SelectLastItem();
