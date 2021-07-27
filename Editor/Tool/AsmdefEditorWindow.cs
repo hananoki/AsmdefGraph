@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityReflection;
 using UnityObject = UnityEngine.Object;
+using E = HananokiEditor.AsmdefGraph.SettingsEditor;
 
 
 namespace HananokiEditor {
@@ -54,10 +55,24 @@ namespace HananokiEditor {
 
 		void OnEnable() {
 			SetTitle( "Asmdef Editor", EditorIcon.assetIcon_AssemblyDefinition );
+			E.Load();
 
 			m_HorizontalSplitter = new UnityEditorSplitterState( 0.4f, 0.6f );
 
 			Refresh();
+			m_waitSpinIcon = new IconWaitSpin( Repaint );
+		}
+
+		void OnDisable() {
+			DisableWaitIcon();
+		}
+
+
+		void DisableWaitIcon() {
+			if( m_waitSpinIcon != null ) {
+				m_waitSpinIcon.Dispose();
+				m_waitSpinIcon = null;
+			}
 		}
 
 
@@ -68,7 +83,7 @@ namespace HananokiEditor {
 				EditorHelper.ShowMessagePop( "Refresh OK." );
 			}
 
-			bool isDirty = m_treeView.m_registerItems.Where( x => x.isDIRTY ).Count() != 0;
+			bool isDirty = m_treeView.m_asmdefItems.Where( x => x.isDIRTY ).Count() != 0;
 			ScopeDisable.Begin( !isDirty );
 			if( HGUIToolbar.Button( "Apply All" ) ) {
 				m_treeView.SaveAssetDirty();
@@ -115,9 +130,9 @@ namespace HananokiEditor {
 
 		}
 
-
+		IconWaitSpin m_waitSpinIcon;
 		public override void OnDefaultGUI() {
-
+			E.Load();
 			ScopeDisable.BeginIsCompiling();
 			DrawToolBar();
 
@@ -132,6 +147,11 @@ namespace HananokiEditor {
 
 			ScopeDisable.End();
 
+			if( EditorApplication.isCompiling ) {
+				var rc = position;
+				rc.x = rc.y = 0;
+				GUI.Label( rc.AlignCenter( 100, 20 ), EditorHelper.TempContent( $"コンパイル中", m_waitSpinIcon ), GUI.skin.box );
+			}
 		}
 	}
 }

@@ -1,7 +1,7 @@
 ﻿
 using HananokiEditor.Extensions;
-using HananokiRuntime.Extensions;
 using HananokiRuntime;
+using HananokiRuntime.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,31 +10,19 @@ using UnityEditor.Compilation;
 using UnityEditor.IMGUI.Controls;
 using UnityEditorInternal;
 using UnityEngine;
-using UnityReflection;
-
+using E = HananokiEditor.AsmdefGraph.SettingsEditor;
 using UnityObject = UnityEngine.Object;
+
 
 namespace HananokiEditor {
 
 	using Item = AsmdefEditorTreeViewItem;
 
-	public class AsmdefEditorTreeViewItem : TreeViewItem {
-		public AssemblyDefinitionAsset target;
-		//public bool isMainAsset;
-		//public AssetImporterEditor editor;
-		public List<Ref> m_reference;
-
-		public AsmdefAssetJson m_json;
-		public bool isGUID;
-		public bool isDIRTY;
-		public string guid;
-		public int changeFormat;
-	}
-
 	public class Ref {
-		public string asmname;
+		public string asmDefの名前;
 		public string guid;
 		public bool toggle;
+		public bool バックアップされている;
 	}
 
 
@@ -42,6 +30,10 @@ namespace HananokiEditor {
 	public class AsmdefEditorTreeView : HTreeView<Item> {
 
 		SessionStateString m_lastSelect = new SessionStateString( "m_lastSelect" );
+		public readonly string k_GenericDragID = $"{typeof( AsmdefEditorTreeView ).Name}.GenericData";
+
+		public List<Item> m_asmdefItems;
+
 
 		public AsmdefEditorTreeView() : base( new TreeViewState() ) {
 			showAlternatingRowBackgrounds = true;
@@ -50,85 +42,118 @@ namespace HananokiEditor {
 		}
 
 		public void SelectLastItem() {
-			var it = m_registerItems.Find( x => x.displayName == m_lastSelect );
+			var it = m_root.displayNameで探す( m_lastSelect );
 			if( it != null ) SelectItem( it.id );
 		}
 
+
 		public void RegisterFiles() {
 			InitID();
-			m_registerItems = new List<Item>();
+			MakeRoot();
+			m_asmdefItems = new List<Item>();
 
 			var guids = AssetDatabase.FindAssets( $"t:AssemblyDefinitionAsset" );
 
-			foreach( var x in guids/*.Select( x => x.ToAssetPath() )*/ ) {
+			foreach( var guid in guids/*.Select( x => x.ToAssetPath() )*/ ) {
 
-				var path = x.ToAssetPath();
-				if( path.StartWithPackage() ) continue;
-				var packageName = path.FileNameWithoutExtension();
-				if( packageName.StartsWith( "Unity" ) ) continue;
+				var assetPath = guid.ToAssetPath();
 
-				//var imp = AssetImporter.GetAtPath( p );
+				if( !E.i.enablePackageAsmdef ) {
+					if( assetPath.StartWithPackage() ) continue;
+				}
+				var packageName = assetPath.FileNameWithoutExtension();
+				//if( packageName.StartsWith( "Unity" ) ) continue;
 
-				var _json = new AsmdefAssetJson( path );
 
-				var _reference = new List<Ref>( 128 );
-				//var dic = new IList();
+				var asmdefJson = new AsmdefAssetJson( assetPath );
+
+				var 参照しているasmdefのリスト = new List<Ref>( 128 );
+
 				bool isGUID = false;
 
-				if( _json.hasReferences ) {
-					//var dic = (IList) _json[ "references" ];
-
-					foreach( var e in _json.references ) {
+				if( asmdefJson.hasReferences ) {
+					foreach( var e in asmdefJson.references ) {
 						var name = (string) e;
 						if( name.StartsWith( "GUID" ) ) {
 							isGUID = true;
 							name = name.Split( ':' )[ 1 ].ToAssetPath().FileNameWithoutExtension();
 						}
-						//Debug.Log( CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName( (string) e ) );
 						var val = new Ref {
-							asmname = name,
+							asmDefの名前 = name,
 							guid = CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName( (string) e ).ToGUID(),
 							toggle = true,
 						};
-						_reference.Add( val );
+						参照しているasmdefのリスト.Add( val );
 					}
 				}
-				if( _json.hasReferencesBackup ) {
-					//var dic = (IList) _json[ "references.backup" ];
-					foreach( var e in _json.referencesBackup ) {
-						//Debug.Log( CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName( (string) e ) );
+				if( asmdefJson.hasReferencesBackup ) {
+					foreach( var e in asmdefJson.referencesBackup ) {
 						var val = new Ref {
-							asmname = (string) e,
+							asmDefの名前 = (string) e,
 							guid = CompilationPipeline.GetAssemblyDefinitionFilePathFromAssemblyName( (string) e ).ToGUID(),
 							toggle = false,
+							バックアップされている = true,
 						};
-						_reference.Add( val );
+						参照しているasmdefのリスト.Add( val );
 					}
 				}
+				var parent = m_root;
+				if( assetPath.StartWithPackage() ) {
+					parent = (Item) m_root.children.FindSafe( x => x.displayName == "Package" );
+					if( parent == null ) {
+						parent = new Item {
+							displayName = "Package",
+							id = GetID(),
+							icon = EditorIcon.folder,
+							folder = true,
+						};
+						m_root.AddChild( parent );
+					}
+				}
+				else {
+					parent = (Item) m_root.children.FindSafe( x => x.displayName == "Assets" );
+					if( parent == null ) {
+						parent = new Item {
+							displayName = "Assets",
+							id = GetID(),
+							icon = EditorIcon.folder,
+							folder = true,
+						};
+						m_root.AddChild( parent );
+					}
+				}
+
 
 				var item = new Item {
 					displayName = packageName,
 					id = GetID(),
 					icon = EditorIcon.icons_processed_unityeditorinternal_assemblydefinitionasset_icon_asset,
-					target = (AssemblyDefinitionAsset) path.LoadAsset(),
+
+					target = (AssemblyDefinitionAsset) assetPath.LoadAsset(),
 					//editor = (AssetImporterEditor) Editor.CreateEditor( imp ),
-					m_json = _json,
-					m_reference = _reference,
+					m_json = asmdefJson,
+					参照しているasmdefのリスト = 参照しているasmdefのリスト,
 					isGUID = isGUID,
-					guid = x,
+					guid = guid,
 				};
 
-				m_registerItems.Add( item );
+				if( 0 < 参照しているasmdefのリスト.Where( x => x.guid.IsEmpty() ).Where( x => !x.バックアップされている ).Count() ) {
+					item.missingなasmdefを検知 = true;
+				}
+				parent.AddChild( item );
+				m_asmdefItems.Add( item );
 			}
-
-			m_registerItems = m_registerItems.OrderBy( x => x.displayName ).ToList();
+			m_root.displayNameでアルファベット順にする();
+			UpdateAllDepth();
 
 			ReloadAndSorting();
+
 		}
 
 
 		public void ReloadAndSorting() {
-			Reload();
+			ReloadRoot();
+			ExpandAll();
 
 			SelectLastItem();
 		}
@@ -139,102 +164,21 @@ namespace HananokiEditor {
 		}
 
 
-		public void DrawItem() {
-			if( currentItem == null ) return;
-
-			using( new GUILayoutScope( 16, 4 ) ) {
-
-				////////////////////////
-
-				ScopeHorizontal.Begin();
-				EditorGUILayout.LabelField( "General", EditorStyles.boldLabel );
-				GUILayout.FlexibleSpace();
-				//if( GUILayout.Button( "Sort" ) ) Sort( currentItem );
-				//ScopeDisable.Begin( !currentItem.isDIRTY );
-				//if( GUILayout.Button( "Apply" ) ) ApplyAndSave( currentItem );
-				//ScopeDisable.End();
-				ScopeHorizontal.End();
-
-				ScopeVertical.Begin( GUI.skin.box );
-				ScopeChange.Begin();
-				currentItem.m_json.autoReferenced=EditorGUILayout.Toggle( "Auto Referenced", currentItem.m_json.autoReferenced );
-				if( ScopeChange.End() ) {
-					currentItem.isDIRTY = true;
-				}
-				ScopeVertical.End();
-
-				////////////////////////
-
-				ScopeHorizontal.Begin();
-				EditorGUILayout.LabelField( "Assembly Definition References", EditorStyles.boldLabel );
-				GUILayout.FlexibleSpace();
-				//if( GUILayout.Button( "Sort" ) ) Sort( currentItem );
-				//ScopeDisable.Begin( !currentItem.isDIRTY );
-				//if( GUILayout.Button( "Apply" ) ) ApplyAndSave( currentItem );
-				//ScopeDisable.End();
-				ScopeHorizontal.End();
-
-				////////////////////////
-
-				Ref del = null;
-				foreach( var e in currentItem.m_reference ) {
-					ScopeHorizontal.Begin( EditorStyles.helpBox );
-					ScopeChange.Begin();
-					e.toggle = HEditorGUILayout.ToggleLeft( e.asmname, e.toggle );
-					if( ScopeChange.End() ) {
-						currentItem.isDIRTY = true;
-					}
-					GUILayout.FlexibleSpace();
-					if( HEditorGUILayout.IconButton( EditorIcon.minus ) ) {
-						del = e;
-						currentItem.isDIRTY = true;
-					}
-
-					ScopeHorizontal.End();
-				}
-				if( del != null ) {
-					currentItem.m_reference.Remove( del );
-				}
-
-				//ScopeHorizontal.Begin();
-				//GUILayout.FlexibleSpace();
-				//if( GUILayout.Button( "整形") ) {
-				//	Debug.Log( currentItem.m_json.name );
-				//	ShellUtils.Start( "dotnet-format", $"-v diag {currentItem.m_json.name}.csproj" );
-				//	//ShellUtils.Start( "cmd.exe", "/k dir" );
-				//	//System.Diagnostics.Process p = new System.Diagnostics.Process();
-				//	//p.StartInfo.FileName = "cmd.exe";
-				//	//p.StartInfo.Arguments = "/k dotnet-format -v diag com.unity.cinemachine.Editor.csproj";
-				//	//p.SynchronizingObject = this;
-				//	//p.StartInfo.UseShellExecute = true;
-				//	//p.Exited += ( sender, e ) => {
-				//	//	EditorApplication.delayCall += () => {
-				//	//		exitHandler( sender, e );
-				//	//	};
-				//	//};
-				//	//p.Start();
-				//	//p.WaitForExit();
-				//}
-				//ScopeHorizontal.End();
-
-				GUILayout.FlexibleSpace();
-			}
-
-
-			var dropRc = GUILayoutUtility.GetLastRect();
-			DrawFileDragArea( dropRc, DD, DragAndDropVisualMode.Link );
-			//HEditorGUI.DrawDebugRect( dropRc );
+		/////////////////////////////////////////
+		protected override void OnDoubleClickedItem( Item item ) {
+#if UNITY_EDITOR_WIN
+			ShellUtils.Start( "explorer.exe", $"{fs.currentDirectory}/{item.guid.ToAssetPath()}".separatorToOS() );
+#endif
 		}
-
 
 		void DD() {
 			foreach( var p in DragAndDrop.objectReferences ) {
 
 				Debug.Log( $"{p.name}: {p.GetType().Name}" );
 				if( typeof( AssemblyDefinitionAsset ) == p.GetType() ) {
-					currentItem.m_reference.Add(
+					currentItem.参照しているasmdefのリスト.Add(
 						new Ref {
-							asmname = p.ToAssetPath().FileNameWithoutExtension(),
+							asmDefの名前 = p.ToAssetPath().FileNameWithoutExtension(),
 							toggle = true,
 						} );
 					currentItem.isDIRTY = true;
@@ -279,17 +223,17 @@ namespace HananokiEditor {
 				if( isGUID && !_ref.guid.IsEmpty() ) {
 					return $"GUID:{_ref.guid}";
 				}
-				return _ref.asmname;
+				return _ref.asmDefの名前;
 			}
 			try {
 				//var refs = (IList) m_json[ "references" ];
 				//if( item.m_json.hasReferences ) {
-				var s = item.m_reference.Where( x => x.toggle ).Select( x => Format( x, item.isGUID ) ).ToArray();
+				var s = item.参照しているasmdefのリスト.Where( x => x.toggle ).Select( x => Format( x, item.isGUID ) ).ToArray();
 				item.m_json.references = s;
 				//}
 
 				//if( item.m_json.hasReferencesBackup) {
-				var ss = item.m_reference.Where( x => !x.toggle ).Select( x => Format( x, item.isGUID ) ).ToArray();
+				var ss = item.参照しているasmdefのリスト.Where( x => !x.toggle ).Select( x => Format( x, item.isGUID ) ).ToArray();
 				item.m_json.referencesBackup = ss;
 				//}
 
@@ -305,30 +249,34 @@ namespace HananokiEditor {
 
 
 		public void Sort( Item item ) {
-			var s = item.m_reference.Where( x => x.toggle ).OrderBy( x => x.asmname );
-			var ss = item.m_reference.Where( x => !x.toggle ).OrderBy( x => x.asmname );
+			var s = item.参照しているasmdefのリスト.Where( x => x.toggle ).OrderBy( x => x.asmDefの名前 );
+			var ss = item.参照しているasmdefのリスト.Where( x => !x.toggle ).OrderBy( x => x.asmDefの名前 );
 
 			//var _reference = item.m_reference.OrderBy( x => x.asmname ).ToList();
 			var _reference = new List<Ref>();
 			_reference.AddRange( s.ToArray() );
 			_reference.AddRange( ss.ToArray() );
-			if( _reference.SequenceEqual( item.m_reference ) ) {
+			if( _reference.SequenceEqual( item.参照しているasmdefのリスト ) ) {
 				//Debug.Log("onaji");
 				return;
 			}
-			item.m_reference = _reference;
+			item.参照しているasmdefのリスト = _reference;
 			item.isDIRTY = true;
 		}
 
 
 
+		/////////////////////////////////////////
 		protected override void OnRowGUI( Item item, RowGUIArgs args ) {
+			if( item.missingなasmdefを検知 ) {
+				EditorGUI.DrawRect( args.rowRect, ColorUtils.RGBA( Color.red, 0.2f ) );
+			}
 			DefaultRowGUI( args );
 
 			var rc2 = args.rowRect.W( 16 );
 			rc2.x += ( 16 * ( item.depth + 1 ) );
 			rc2 = rc2.AlignCenter( 14, 14 );
-			//EditorGUI.DrawRect( rc2,new Color(0,0,1,0.2f) );
+
 			if( EditorHelper.HasMouseClick( rc2 ) ) {
 				EditorApplication.delayCall += () => { EditorHelper.PingAndSelectObject( item.target ); };
 			}
@@ -338,19 +286,107 @@ namespace HananokiEditor {
 			}
 			if( item.isGUID ) {
 				HEditorGUI.MiniLabelR( args.rowRect, "GUID" );
-				//EditorGUI.LabelField( args.rowRect.AlignR( 16 ), "G" );
 			}
-			else if( item.m_reference.Count == 0 ) {
-				HEditorGUI.MiniLabelR( args.rowRect, "-" );
-				//EditorGUI.LabelField( args.rowRect.AlignR( 16 ), "G" );
+		}
+
+
+		/////////////////////////////////////////
+		public void DrawItem() {
+			if( currentItem == null ) return;
+			if( currentItem.folder ) return;
+
+			using( new GUILayoutScope( 16, 4 ) ) {
+
+				////////////////////////
+
+				ScopeHorizontal.Begin();
+				EditorGUILayout.LabelField( "General", EditorStyles.boldLabel );
+				GUILayout.FlexibleSpace();
+				ScopeHorizontal.End();
+
+				ScopeVertical.Begin( GUI.skin.box );
+				ScopeChange.Begin();
+				currentItem.m_json.autoReferenced = EditorGUILayout.Toggle( "Auto Referenced", currentItem.m_json.autoReferenced );
+				if( ScopeChange.End() ) {
+					currentItem.isDIRTY = true;
+				}
+				ScopeVertical.End();
+
+				////////////////////////
+
+				ScopeHorizontal.Begin();
+				EditorGUILayout.LabelField( "Assembly Definition References", EditorStyles.boldLabel );
+				GUILayout.FlexibleSpace();
+				ScopeHorizontal.End();
+
+				////////////////////////
+
+				Ref del = null;
+
+				foreach( var e in currentItem.参照しているasmdefのリスト ) {
+					using( new GUIBackgroundColorScope() ) {
+						if( e.guid.IsEmpty() ) {
+							if( e.バックアップされている ) {
+								GUI.backgroundColor = Color.yellow;
+							}
+							else {
+								GUI.backgroundColor = Color.red;
+							}
+						}
+						ScopeHorizontal.Begin( EditorStyles.helpBox );
+						ScopeChange.Begin();
+						e.toggle = HEditorGUILayout.ToggleLeft( e.asmDefの名前, e.toggle );
+						if( ScopeChange.End() ) {
+							currentItem.isDIRTY = true;
+						}
+						GUILayout.FlexibleSpace();
+						if( HEditorGUILayout.IconButton( EditorIcon.minus ) ) {
+							del = e;
+							currentItem.isDIRTY = true;
+						}
+
+						ScopeHorizontal.End();
+					}
+				}
+				if( del != null ) {
+					currentItem.参照しているasmdefのリスト.Remove( del );
+				}
+
+				//ScopeHorizontal.Begin();
+				//GUILayout.FlexibleSpace();
+				//if( GUILayout.Button( "整形") ) {
+				//	Debug.Log( currentItem.m_json.name );
+				//	ShellUtils.Start( "dotnet-format", $"-v diag {currentItem.m_json.name}.csproj" );
+				//	//ShellUtils.Start( "cmd.exe", "/k dir" );
+				//	//System.Diagnostics.Process p = new System.Diagnostics.Process();
+				//	//p.StartInfo.FileName = "cmd.exe";
+				//	//p.StartInfo.Arguments = "/k dotnet-format -v diag com.unity.cinemachine.Editor.csproj";
+				//	//p.SynchronizingObject = this;
+				//	//p.StartInfo.UseShellExecute = true;
+				//	//p.Exited += ( sender, e ) => {
+				//	//	EditorApplication.delayCall += () => {
+				//	//		exitHandler( sender, e );
+				//	//	};
+				//	//};
+				//	//p.Start();
+				//	//p.WaitForExit();
+				//}
+				//ScopeHorizontal.End();
+
+				GUILayout.FlexibleSpace();
 			}
+
+
+			var dropRc = GUILayoutUtility.GetLastRect();
+			DrawFileDragArea( dropRc, DD, DragAndDropVisualMode.Link );
+			//HEditorGUI.DrawDebugRect( dropRc );
 		}
 
 
 
 		public void SaveAssetDirty() {
-			using( var prog = new ProgressBarScope( "Save - AssetName", m_registerItems.Count ) ) {
-				foreach( var p in m_registerItems ) {
+			using( var prog = new ProgressBarScope( "Save - AssetName", m_root.children.Count ) ) {
+				foreach( var p in m_asmdefItems ) {
 					prog.Next( p.displayName );
 					if( !p.isDIRTY ) continue;
 					if( p.changeFormat == 1 ) {
@@ -368,8 +404,8 @@ namespace HananokiEditor {
 
 
 		public void ChangeAsmName() {
-			for( int i = 0; i < m_registerItems.Count; i++ ) {
-				var p = m_registerItems[ i ];
+			for( int i = 0; i < m_asmdefItems.Count; i++ ) {
+				var p = m_asmdefItems[ i ];
 				if( !p.isGUID ) continue;
 
 				p.changeFormat = 1;
@@ -378,8 +414,8 @@ namespace HananokiEditor {
 		}
 
 		public void ChangeGUID() {
-			for( int i = 0; i < m_registerItems.Count; i++ ) {
-				var p = m_registerItems[ i ];
+			for( int i = 0; i < m_asmdefItems.Count; i++ ) {
+				var p = m_asmdefItems[ i ];
 				if( p.isGUID ) continue;
 
 				p.changeFormat = 2;
@@ -392,13 +428,9 @@ namespace HananokiEditor {
 
 		protected override bool CanRename( TreeViewItem item ) {
 			if( item == null ) return false;
-			//if( item.displayName.IsEmpty() ) return false;
-
-			var _it = (Item) item;
-			//if( _it.hasSubAsset ) return false;
-
 			return true;
 		}
+
 
 		protected override void RenameEnded( RenameEndedArgs args ) {
 			base.RenameEnded( args );
@@ -408,7 +440,7 @@ namespace HananokiEditor {
 
 			args.acceptedRename = true;
 
-			var item = FindItem( args.itemID, rootItem ) as Item;
+			var item = ToItem( args.itemID );
 
 			//AssetDatabase.RenameAsset( item.target .ToAssetPath(), args.newName );
 			//item.target.name = args.newName;
@@ -427,7 +459,7 @@ namespace HananokiEditor {
 			GUIUtility.ExitGUI();
 			return;
 
-			err:
+		err:
 			args.acceptedRename = false;
 		}
 
@@ -437,23 +469,23 @@ namespace HananokiEditor {
 
 
 		void RenameAssets() {
-			using( var prog = new ProgressBarScope( "Save - AssetName", m_registerItems.Count + 1 ) ) {
-				foreach( var p in m_registerItems ) {
+			using( var prog = new ProgressBarScope( "Save - AssetName", m_root.children.Count + 1 ) ) {
+				foreach( var p in m_asmdefItems ) {
 					prog.Next( p.displayName );
 					bool dirty = false;
 					if( p.id == renameItem.id ) continue;
 
-					foreach( var pp in p.m_reference ) {
+					foreach( var pp in p.参照しているasmdefのリスト ) {
 						if( renameItem.guid == pp.guid ) {
 							//Debug.Log( $"{p.displayName} : {pp.asmname}" );
-							pp.asmname = renameItem.displayName;
+							pp.asmDefの名前 = renameItem.displayName;
 							dirty = true;
 						}
 					}
 					if( dirty ) {
-						var s = p.m_reference.Where( x => x.toggle ).Select( x => x.asmname ).ToArray();
+						var s = p.参照しているasmdefのリスト.Where( x => x.toggle ).Select( x => x.asmDefの名前 ).ToArray();
 						p.m_json.references = s;
-						var ss = p.m_reference.Where( x => !x.toggle ).Select( x => x.asmname ).ToArray();
+						var ss = p.参照しているasmdefのリスト.Where( x => !x.toggle ).Select( x => x.asmDefの名前 ).ToArray();
 						p.m_json.referencesBackup = ss;
 						p.m_json.Save();
 					}
@@ -470,29 +502,17 @@ namespace HananokiEditor {
 
 		#region DragAndDrop
 
-		public const string k_GenericDragID = "AAA.GenericData";
-
 		protected override void OnSetupDragAndDrop( Item[] items ) {
-			
 			DragAndDrop.PrepareStartDrag();
 
-			var selected = new List<Item>();
-			foreach( var item in items ) {
-				selected.Add( item );
-			}
-			//var ss = selected.Select( x => x.guid.ToAssetPath() ).ToArray(); ;
-			DragAndDrop.objectReferences = new UnityObject[] { selected[ 0 ].target };
+			DragAndDrop.objectReferences = new UnityObject[] { items[ 0 ].target };
 			DragAndDrop.paths = null;
-			//DragAndDrop.paths = new string[10];
-			//DragAndDrop.paths[ 0 ] = "aaa";
-			DragAndDrop.SetGenericData( k_GenericDragID, selected );
+			DragAndDrop.SetGenericData( k_GenericDragID, items );
 			DragAndDrop.visualMode = DragAndDropVisualMode.Move;
-			DragAndDrop.StartDrag( "ScriptableObjectTreeView" );
+			DragAndDrop.StartDrag( $"{typeof( AsmdefEditorTreeView ).Name}.StartDrag" );
 		}
 
-		protected override bool OnCanStartDrag( Item item, CanStartDragArgs args ) {
-			return true;
-		}
+		protected override bool OnCanStartDrag( Item item, CanStartDragArgs args ) => true;
 
 		#endregion
 	}

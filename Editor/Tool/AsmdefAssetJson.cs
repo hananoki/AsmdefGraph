@@ -1,6 +1,6 @@
 ﻿
-using HananokiRuntime.Extensions;
 using HananokiEditor.Extensions;
+using HananokiRuntime.Extensions;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -17,7 +17,7 @@ namespace HananokiEditor {
 
 		public string name {
 			get => (string) m_data[ "name" ];
-			set => m_data[ "name" ] = (string) value;
+			set => m_data[ "name" ] = value;
 		}
 
 		public bool hasReferences => m_data.ContainsKey( "references" );

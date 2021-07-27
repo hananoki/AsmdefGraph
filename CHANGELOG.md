@@ -1,5 +1,15 @@
 # AsmdefGraph
 
+## [0.4.0] - 2021-07-27
+- `SharedModule v1.12.0` or later
+
+### Added
+- Added the function to handle Packages
+- Added a function to detect missing and display it in color
+
+### Changed
+- Changed Open Asset to common use
+
 ## [0.3.0] - 2021-06-30
 - `SharedModule v1.11.0` or later
 
